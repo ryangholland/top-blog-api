@@ -27,22 +27,26 @@ exports.getPostById = async (req, res) => {
 // Create a new post
 exports.createPost = async (req, res) => {
   try {
-    console.log("Incoming request body:", req.body); // Log request data
-
     const { title, content, published } = req.body;
+
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: User not authenticated" });
+    }
+
     const newPost = await prisma.post.create({
       data: {
         title,
         content,
-        excerpt: content.substring(0, 100), // Auto-generate excerpt
+        excerpt: content.substring(0, 100),
         published: published || false,
-        userId: 1, // Hardcoded for now, replace with authenticated user later
+        userId: req.user.id,
       },
     });
-    console.log("Post created:", newPost); // Log successful post creation
+
     res.status(201).json(newPost);
   } catch (error) {
-    console.error("Error creating post:", error); // Log error details
     res
       .status(500)
       .json({ error: "Error creating post", details: error.message });
@@ -52,8 +56,6 @@ exports.createPost = async (req, res) => {
 // Update a post
 exports.updatePost = async (req, res) => {
   try {
-    console.log("Incoming request body:", req.body); // Log request data
-    
     const { title, content, published } = req.body;
     const updatedPost = await prisma.post.update({
       where: { id: parseInt(req.params.id) },
@@ -64,10 +66,9 @@ exports.updatePost = async (req, res) => {
         published,
       },
     });
-    console.log("Post updated:", updatedPost); // Log successful post update
+
     res.json(updatedPost);
   } catch (error) {
-    console.error("Error updating post:", error);
     res
       .status(500)
       .json({ error: "Error updating post", details: error.message });
