@@ -131,3 +131,4 @@ dist
 
 # prisma tests
 script.js
+seed.js
