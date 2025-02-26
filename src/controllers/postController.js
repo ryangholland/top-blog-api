@@ -11,6 +11,36 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
+// Get 5 recent posts
+exports.getRecentPosts = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      take: 5, 
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { username: true } }, 
+        comments: true, 
+        tags: { select: { name: true } }, 
+      },
+    });
+
+    // Format response
+    const formattedPosts = posts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      author: post.user.username,
+      datePosted: new Date(post.createdAt).toLocaleDateString(),
+      excerpt: post.excerpt,
+      commentCount: post.comments.length,
+      tags: post.tags.map((tag) => tag.name),
+    }));
+
+    res.json(formattedPosts);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching recent posts" });
+  }
+};
+
 // Get a single post by ID
 exports.getPostById = async (req, res) => {
   try {
