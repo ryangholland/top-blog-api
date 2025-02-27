@@ -3,29 +3,29 @@ const prisma = new PrismaClient();
 
 // Get all tags sorted by popularity
 exports.getAllTags = async (req, res) => {
-  try {
-    const tags = await prisma.tag.findMany({
-      include: {
-        _count: {
-          select: { posts: true }, // Count the number of posts per tag
-        },
-      },
-      orderBy: {
-        posts: { _count: "desc" }, // Sort by post count (most used tags first)
-      },
-    });
-
-    // Format response
-    const formattedTags = tags.map((tag) => ({
-      id: tag.id,
-      name: tag.name,
-      count: tag._count.posts,
-    }));
-
-    res.json(formattedTags);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching tags" });
-  }
+    try {
+        const tags = await prisma.tag.findMany({
+          include: {
+            posts: {
+              where: { published: true }, // Only count published posts
+              select: { id: true }, // We just need the count, not full post data
+            },
+          },
+        });
+    
+        // Filter out tags with 0 published posts
+        const formattedTags = tags
+          .map(tag => ({
+            id: tag.id,
+            name: tag.name,
+            count: tag.posts.length, // Count only published posts
+          }))
+          .filter(tag => tag.count > 0); // Don't include tags with zero published posts
+    
+        res.json(formattedTags);
+      } catch (error) {
+        res.status(500).json({ error: "Error fetching tags" });
+      }
 };
 
 // Get posts by tag name
