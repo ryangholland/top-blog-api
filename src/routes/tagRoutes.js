@@ -3,6 +3,6 @@ const router = express.Router();
 const tagController = require("../controllers/tagController");
 
 router.get("/", tagController.getAllTags);
-router.get("/:tagName", tagController.getPostsByTag)
+router.get("/:id", tagController.getPostsByTag)
 
 module.exports = router;
