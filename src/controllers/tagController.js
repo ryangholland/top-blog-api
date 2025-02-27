@@ -30,23 +30,36 @@ exports.getAllTags = async (req, res) => {
 
 // Get posts by tag name
 exports.getPostsByTag = async (req, res) => {
-  try {
-    const { tagName } = req.params;
+  const tagId = parseInt(req.params.id);
 
-    const posts = await prisma.post.findMany({
-      where: {
-        tags: {
-          some: { name: tagName }, // Find posts that include this tag
+  if (isNaN(tagId)) {
+    return res.status(400).json({ error: "Invalid tag ID" });
+  }
+
+  try {
+    const tag = await prisma.tag.findUnique({
+      where: { id: tagId },
+      include: {
+        posts: {
+          where: { published: true }, // Only return published posts
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            excerpt: true,
+            createdAt: true,
+          },
         },
       },
-      include: {
-        tags: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" },
     });
 
-    res.json(posts);
+    if (!tag) {
+      return res.status(404).json({ error: "Tag not found" });
+    }
+
+    res.json(tag);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching posts for this tag" });
+    console.error("Error fetching posts by tag:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
