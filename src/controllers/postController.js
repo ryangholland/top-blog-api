@@ -75,6 +75,30 @@ exports.getPostById = async (req, res) => {
   }
 };
 
+// Get a random post
+exports.getRandomPost = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      select: { id: true }, // Only fetch post IDs
+    });
+
+    console.log("Fetched Posts:", posts); // Debugging
+
+    if (!posts.length) {
+      return res.status(404).json({ error: "No published posts found" });
+    }
+
+    const randomIndex = Math.floor(Math.random() * posts.length);
+    const randomPost = posts[randomIndex];
+
+    res.json({ id: randomPost.id });
+  } catch (error) {
+    console.error("Error fetching random post:", error);
+    res.status(500).json({ error: "Error fetching post" });
+  }
+};
+
 // Create a new post
 exports.createPost = async (req, res) => {
   try {
