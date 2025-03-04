@@ -1,15 +1,24 @@
 const prisma = require("../db/prisma");
 
 // Get all posts
-// TODO: Split into "getAllPosts" and "getPublishedPosts"
 exports.getAllPosts = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany();
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching posts" });
+  }
+};
+
+// Get published posts
+exports.getPublishedPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: { published: true },
     });
     res.json(posts);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching posts" });
+    res.status(500).json({ error: "Error fetching published posts" });
   }
 };
 
