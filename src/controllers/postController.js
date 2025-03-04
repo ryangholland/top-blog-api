@@ -1,12 +1,11 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../db/prisma");
 
 // Get all posts
 // TODO: Split into "getAllPosts" and "getPublishedPosts"
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
-      where: { published: true }
+      where: { published: true },
     });
     res.json(posts);
   } catch (error) {
@@ -82,8 +81,6 @@ exports.getRandomPost = async (req, res) => {
       where: { published: true },
       select: { id: true }, // Only fetch post IDs
     });
-
-    console.log("Fetched Posts:", posts); // Debugging
 
     if (!posts.length) {
       return res.status(404).json({ error: "No published posts found" });

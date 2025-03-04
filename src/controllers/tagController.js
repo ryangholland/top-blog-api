@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../db/prisma");
 
 // Get all tags sorted by popularity
 exports.getAllTags = async (req, res) => {
