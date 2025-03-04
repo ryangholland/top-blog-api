@@ -110,6 +110,9 @@ exports.createPost = async (req, res) => {
   try {
     const { title, content, published } = req.body;
 
+    if (!title || !content) {
+      return res.status(400).json({ error: "Title and content are required" });
+    }
     if (!req.user || !req.user.id) {
       return res
         .status(401)
