@@ -1,19 +1,14 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const corsOptions = require("./config/corsConfig");
+
 const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const tagRoutes = require("./routes/tagRoutes");
 const authRoutes = require("./routes/authRoutes");
 
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Allow frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    credentials: true, // Allow cookies (if needed)
-  })
-);
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/posts", postRoutes);
